@@ -205,7 +205,6 @@
     </div>
 
     <div class="btn-row">
-      <!-- 替换成你自己的 URL 之后可以再做二维码 -->
       <a class="btn btn-wa" href="https://wa.me/5492314532328?text=Hola%2C%20confirmamos%20para%20la%20fiesta%20de%20Simon%20y%20Denis" target="_blank">
         💬 Confirmar por WhatsApp
       </a>
@@ -220,14 +219,13 @@
     </div>
 
     <div class="qr-note">
-      Después de subir la página (por ejemplo a Netlify) y tener el enlace final,<br>
+      Después de subir la página y tener el enlace final,<br>
       podés generar un QR con ese link para imprimirlo o compartirlo.
     </div>
   </div>
 </div>
 
 <script>
-  // ===== Canvas 动画：背景 + 气球 + 彩纸 + 点击爆炸 =====
   const canvas = document.getElementById('bg');
   const ctx = canvas.getContext('2d');
 
@@ -397,7 +395,6 @@
       drawBalloon(b);
     }
 
-    // bursts
     for (let i = bursts.length - 1; i >= 0; i--) {
       const p = bursts[i];
       p.x += p.vx;
@@ -415,7 +412,7 @@
 
   update();
 
-  // ===== Web Audio 背景“轻快节奏” =====
+  // 音乐节奏（轻快小节拍）
   let audioCtx = null;
   let musicOn = false;
   let beatTimer = null;
@@ -427,7 +424,6 @@
     const bpm = 96;
     const interval = 60 / bpm;
 
-    // 小鼓
     const kick = audioCtx.createOscillator();
     const kickGain = audioCtx.createGain();
     kick.frequency.setValueAtTime(90, now);
@@ -438,7 +434,6 @@
     kick.start(now);
     kick.stop(now + 0.3);
 
-    // 拍手
     const clapTime = now + interval / 2;
     const clap = audioCtx.createOscillator();
     const clapGain = audioCtx.createGain();
@@ -488,4 +483,3 @@
 
 </body>
 </html>
-
