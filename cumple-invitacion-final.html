@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Fiesta de Cumple - Simon & Denis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #060b20;
+      color: #ffffff;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      display: block;
+      z-index: 0;
+    }
+
+    .center-card {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      padding: 26px 30px 18px;
+      border-radius: 18px;
+      background: rgba(10, 14, 40, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      backdrop-filter: blur(10px);
+      animation: popIn 0.8s ease-out;
+    }
+
+    @keyframes popIn {
+      0% { transform: translateY(20px) scale(0.9); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .title {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      background: linear-gradient(120deg, #ffd36b, #ff8ba7, #5c9dff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .logo-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+      margin-top: 2px;
+    }
+
+    .logo-row img {
+      display: block;
+      max-height: 70px;
+      border-radius: 12px;
+      background: #000;
+      object-fit: contain;
+    }
+
+    .names {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+
+    .info {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .small {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-wa {
+      background: #25d366;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(37, 211, 102, 0.45);
+    }
+
+    .btn-wa:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 9px 20px rgba(37, 211, 102, 0.6);
+      background: #1fb557;
+    }
+
+    .btn-music {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-music.on {
+      background: rgba(255, 211, 107, 0.2);
+      box-shadow: 0 6px 14px rgba(255, 211, 107, 0.55);
+    }
+
+    .qr-note {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px 16px 14px;
+      }
+      .title {
+        font-size: 1.8rem;
+      }
+      .subtitle {
+        font-size: 1.02rem;
+      }
+      .logo-row img {
+        max-height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="center-card">
+  <div class="card">
+    <div class="title">¡Fiesta de cumple!</div>
+    <div class="subtitle">Simon &amp; Denis te invitan 🎉</div>
+
+    <div class="logo-row">
+      <img src="simon-logo.jpg" alt="Simon logo">
+      <img src="denis-logo.jpg" alt="Denis logo">
+    </div>
+
+    <div class="names">
+      Simon Huang · 12 años · estilo naranja/negro<br>
+      Denis Huang · 9 años · fan de LEGO
+    </div>
+
+    <div class="pill">
+      Domingo 8 de diciembre · 14:00 a 17:00 hs
+    </div>
+
+    <div class="info">
+      Quinta Urbina, Henderson<br>
+      Aire libre, juegos y merienda rica. Va a estar buenísimo 😉
+    </div>
+
+    <div class="btn-row">
+      <!-- 替换成你自己的 URL 之后可以再做二维码 -->
+      <a class="btn btn-wa" href="https://wa.me/5492314532328?text=Hola%2C%20confirmamos%20para%20la%20fiesta%20de%20Simon%20y%20Denis" target="_blank">
+        💬 Confirmar por WhatsApp
+      </a>
+      <button class="btn btn-music" id="musicToggle">
+        🔇 Música OFF
+      </button>
+    </div>
+
+    <div class="small">
+      Si podés, avisá si el/la chico/a tiene alguna alergia alimentaria.<br>
+      Si llueve, la fiesta se hace igual en la quinta, tranqui.
+    </div>
+
+    <div class="qr-note">
+      Después de subir la página (por ejemplo a Netlify) y tener el enlace final,<br>
+      podés generar un QR con ese link para imprimirlo o compartirlo.
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== Canvas 动画：背景 + 气球 + 彩纸 + 点击爆炸 =====
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+
+  let width, height, balloons = [], confetti = [], bursts = [];
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  const balloonColors = ['#ff8ba7', '#ffd36b', '#5c9dff', '#9ae6b4'];
+
+  function createBalloons(count) {
+    balloons = [];
+    for (let i = 0; i < count; i++) {
+      balloons.push({
+        x: rand(-50, width + 50),
+        y: rand(height * 0.2, height + 100),
+        r: rand(26, 40),
+        vy: rand(-0.4, -0.9),
+        sway: rand(0.3, 0.7),
+        swayOffset: Math.random() * Math.PI * 2,
+        color: balloonColors[Math.floor(Math.random() * balloonColors.length)]
+      });
+    }
+  }
+
+  function createConfetti(count) {
+    confetti = [];
+    for (let i = 0; i < count; i++) {
+      confetti.push({
+        x: rand(0, width),
+        y: rand(-height * 0.5, height),
+        w: rand(3, 6),
+        h: rand(8, 14),
+        vy: rand(0.6, 1.4),
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-0.04, 0.04),
+        color: balloonColors[Math.floor(Math.random() * balloonColors.length)]
+      });
+    }
+  }
+
+  createBalloons(16);
+  createConfetti(70);
+
+  function drawBackground() {
+    const g = ctx.createLinearGradient(0, 0, 0, height);
+    g.addColorStop(0, '#060b24');
+    g.addColorStop(1, '#140b33');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    for (let i = 0; i < 35; i++) {
+      const sx = (i * 137) % width;
+      const sy = (i * 59) % height * 0.5;
+      ctx.fillRect(sx, sy, 1.2, 1.2);
+    }
+  }
+
+  function drawBalloon(b) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, b.r * 0.75, b.r, 0, 0, Math.PI * 2);
+    const grad = ctx.createRadialGradient(-b.r * 0.2, -b.r * 0.4, b.r * 0.1, 0, 0, b.r);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.18, b.color);
+    grad.addColorStop(1, '#000000');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-5, b.r * 0.7);
+    ctx.lineTo(5, b.r * 0.7);
+    ctx.lineTo(0, b.r * 0.9);
+    ctx.closePath();
+    ctx.fillStyle = b.color;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, b.r * 0.9);
+    ctx.bezierCurveTo(4, b.r * 1.4, -4, b.r * 1.9, 2, b.r * 2.4);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawConfetto(c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.rot);
+    ctx.fillStyle = c.color;
+    ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+    ctx.restore();
+  }
+
+  function spawnBurst(x, y) {
+    const count = 30;
+    for (let i = 0; i < count; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(1.2, 3.2);
+      bursts.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        color: balloonColors[Math.floor(Math.random() * balloonColors.length)],
+        size: rand(3, 6)
+      });
+    }
+  }
+
+  function drawBurst(p) {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    spawnBurst(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    spawnBurst(t.clientX - rect.left, t.clientY - rect.top);
+  }, { passive: true });
+
+  function update() {
+    drawBackground();
+
+    for (let c of confetti) {
+      c.y += c.vy;
+      c.rot += c.vr;
+      if (c.y - 20 > height) {
+        c.y = rand(-height * 0.4, -20);
+        c.x = rand(0, width);
+      }
+      drawConfetto(c);
+    }
+
+    const t = Date.now() * 0.001;
+    for (let b of balloons) {
+      b.y += b.vy;
+      b.x += Math.sin(t + b.swayOffset) * b.sway;
+
+      if (b.y + b.r < -40) {
+        b.y = height + rand(30, 120);
+        b.x = rand(-50, width + 50);
+      }
+      drawBalloon(b);
+    }
+
+    // bursts
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const p = bursts[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= 0.02;
+      drawBurst(p);
+      if (p.life <= 0) {
+        bursts.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  update();
+
+  // ===== Web Audio 背景“轻快节奏” =====
+  let audioCtx = null;
+  let musicOn = false;
+  let beatTimer = null;
+  const musicBtn = document.getElementById('musicToggle');
+
+  function playBeat() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const bpm = 96;
+    const interval = 60 / bpm;
+
+    // 小鼓
+    const kick = audioCtx.createOscillator();
+    const kickGain = audioCtx.createGain();
+    kick.frequency.setValueAtTime(90, now);
+    kick.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+    kickGain.gain.setValueAtTime(0.5, now);
+    kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    kick.connect(kickGain).connect(audioCtx.destination);
+    kick.start(now);
+    kick.stop(now + 0.3);
+
+    // 拍手
+    const clapTime = now + interval / 2;
+    const clap = audioCtx.createOscillator();
+    const clapGain = audioCtx.createGain();
+    clap.type = 'square';
+    clap.frequency.setValueAtTime(400, clapTime);
+    clapGain.gain.setValueAtTime(0.18, clapTime);
+    clapGain.gain.exponentialRampToValueAtTime(0.001, clapTime + 0.15);
+    clap.connect(clapGain).connect(audioCtx.destination);
+    clap.start(clapTime);
+    clap.stop(clapTime + 0.2);
+  }
+
+  function startMusicLoop() {
+    if (beatTimer) clearInterval(beatTimer);
+    const bpm = 96;
+    const intervalMs = (60 / bpm) * 1000;
+    beatTimer = setInterval(() => {
+      if (musicOn) playBeat();
+    }, intervalMs);
+  }
+
+  function stopMusicLoop() {
+    if (beatTimer) {
+      clearInterval(beatTimer);
+      beatTimer = null;
+    }
+  }
+
+  musicBtn.addEventListener('click', () => {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    musicOn = !musicOn;
+    if (musicOn) {
+      musicBtn.textContent = '🔊 Música ON';
+      musicBtn.classList.add('on');
+      startMusicLoop();
+      playBeat();
+    } else {
+      musicBtn.textContent = '🔇 Música OFF';
+      musicBtn.classList.remove('on');
+      stopMusicLoop();
+    }
+  });
+</script>
+
+</body>
+</html>
