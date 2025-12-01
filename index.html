@@ -6,19 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     html, body {
       height: 100%;
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #060b20;
-      color: #ffffff;
+      background: linear-gradient(135deg, #ffeef5, #e8f6ff);
+      color: #222222;
     }
+
     canvas {
       position: fixed;
       inset: 0;
       display: block;
       z-index: 0;
+      pointer-events: none;
     }
+
     .center-card {
       position: relative;
       z-index: 1;
@@ -28,81 +32,139 @@
       justify-content: center;
       padding: 20px;
     }
+
     .card {
-      padding: 26px 30px 18px;
-      border-radius: 18px;
-      background: rgba(10, 14, 40, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 28px 32px 20px;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
       text-align: center;
-      max-width: 480px;
+      max-width: 520px;
       width: 100%;
-      backdrop-filter: blur(10px);
-      animation: popIn 0.8s ease-out;
+      animation: popIn 0.7s ease-out;
     }
+
     @keyframes popIn {
-      from { transform: translateY(20px) scale(0.9); opacity: 0; }
+      from { transform: translateY(20px) scale(0.95); opacity: 0; }
       to   { transform: translateY(0) scale(1); opacity: 1; }
     }
+
     .title {
-      font-size: 2.1rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
+      font-size: 2.4rem;     /* 大一点 */
+      font-weight: 800;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 6px;
-      background: linear-gradient(120deg, #ffd36b, #ff8ba7, #5c9dff);
+      margin-bottom: 10px;
+      background: linear-gradient(120deg, #ff7b93, #ffb347, #5c9dff);
       -webkit-background-clip: text;
       color: transparent;
     }
-    .subtitle { font-size: 1.1rem; margin-bottom: 10px; }
+
+    .subtitle {
+      font-size: 1.4rem;     /* 大一点 */
+      margin-bottom: 16px;
+      color: #444444;
+    }
+
     .logo-row {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 14px;
+      gap: 18px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
     }
+
     .logo-row img {
       display: block;
-      max-height: 70px;
-      border-radius: 12px;
+      max-height: 90px;      /* LOGO 更大 */
+      border-radius: 14px;
       background: #000;
       object-fit: contain;
     }
-    .names { font-size: 0.95rem; margin-bottom: 12px; opacity: 0.9; }
+
+    .names {
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+      color: #333333;
+    }
+
     .pill {
       display: inline-block;
-      padding: 6px 14px;
+      padding: 8px 18px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.1);
-      margin-bottom: 8px;
-      font-size: 0.92rem;
+      background: #fff5d7;
+      border: 1px solid #ffd36b;
+      font-size: 1.05rem;
+      margin-bottom: 10px;
+      color: #704c00;
     }
-    .info { font-size: 0.95rem; margin-bottom: 10px; }
-    .small { font-size: 0.8rem; opacity: 0.8; }
+
+    .info {
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      color: #333333;
+    }
+
+    .small {
+      font-size: 0.95rem;
+      color: #666666;
+      line-height: 1.5;
+    }
+
     .btn-row {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 12px;
+      margin: 14px 0 10px;
+      flex-wrap: wrap;
     }
+
     .btn {
-      padding: 7px 14px;
+      padding: 9px 18px;
       border-radius: 999px;
       cursor: pointer;
-      font-size: 0.88rem;
+      font-size: 1rem;
       text-decoration: none;
+      border: none;
       transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
     }
+
     .btn-wa {
       background: #25d366;
-      color: #fff;
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
     }
-    .btn-music {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
+
+    .btn-wa:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 9px 22px rgba(37, 211, 102, 0.55);
     }
-    .btn-music.on {
-      background: rgba(255,211,107,0.25);
-      color: #fff;
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px 16px 16px;
+      }
+      .title {
+        font-size: 2.0rem;
+      }
+      .subtitle {
+        font-size: 1.3rem;
+      }
+      .logo-row img {
+        max-height: 80px;
+      }
+      .info, .names, .pill {
+        font-size: 1.0rem;
+      }
+      .small {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -113,11 +175,11 @@
 <div class="center-card">
   <div class="card">
     <div class="title">¡Fiesta de cumple!</div>
-    <div class="subtitle">Simon & Denis te invitan 🎉</div>
+    <div class="subtitle">Simon y Denis te invitan 🎉</div>
 
     <div class="logo-row">
-      <img src="simon.jpg">
-      <img src="denis.jpg">
+      <img src="simon.jpg" alt="Simon">
+      <img src="denis.jpg" alt="Denis">
     </div>
 
     <div class="names">
@@ -125,166 +187,242 @@
       Denis Huang · 9 años
     </div>
 
-    <div class="pill">Domingo 8 de diciembre · 14:00 a 17:00 hs</div>
+    <div class="pill">
+      Domingo 8 de diciembre · 14:00 a 17:00 hs
+    </div>
 
     <div class="info">
       Quinta Urbina, Henderson<br>
-      Aire libre, juegos y merienda rica.
+      Aire libre, juegos, merienda rica y mucha buena onda.
     </div>
 
     <div class="btn-row">
       <a class="btn btn-wa"
          href="https://wa.me/5492314532328?text=Hola%2C%20confirmamos%20para%20la%20fiesta%20de%20Simon%20y%20Denis"
-         target="_blank">💬 Confirmar por WhatsApp</a>
-
-      <button class="btn btn-music" id="musicBtn">🔇 Música OFF</button>
+         target="_blank">
+        💬 Confirmar por WhatsApp
+      </a>
     </div>
 
     <div class="small">
-      Si llueve, la fiesta se hace igual.<br>
-      Avisá si hay alergias alimentarias.
+      Si llueve, la fiesta se hace igual en la quinta.<br>
+      Avisá si el/la chico/a tiene alguna alergia alimentaria.
     </div>
   </div>
 </div>
 
 <script>
-/* ---------- Canvas 背景动画（气球 + 彩纸 + 点击爆炸） ---------- */
+/* ---------- 彩色背景动画（亮色版） ---------- */
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
-
 let W, H;
-function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
-addEventListener('resize', resize); resize();
 
-function rand(a,b){ return Math.random()*(b-a)+a;}
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
 
-let balloons = [], confetti = [], bursts = [];
-const colors = ['#ff8ba7', '#ffd36b', '#5c9dff', '#9ae6b4'];
+function rand(a,b){ return Math.random()*(b-a)+a; }
 
-for(let i=0;i<16;i++){
+const colors = ['#ff8ba7', '#ffd36b', '#5c9dff', '#9ae6b4', '#ffb3ef'];
+
+let balloons = [];
+let confetti = [];
+let bursts = [];
+
+for (let i=0;i<18;i++) {
   balloons.push({
     x: rand(-50,W+50),
-    y: rand(H*0.2,H+100),
-    r: rand(26,40),
-    vy: rand(-0.4,-0.9),
-    sway: rand(0.3,0.7),
+    y: rand(H*0.3,H+120),
+    r: rand(30,44),
+    vy: rand(-0.5,-1.0),
+    sway: rand(0.4,0.9),
     off: rand(0,Math.PI*2),
     color: colors[(Math.random()*colors.length)|0]
   });
 }
-for(let i=0;i<70;i++){
+
+for (let i=0;i<80;i++) {
   confetti.push({
-    x: rand(0,W), y: rand(-H*0.5,H),
-    w: rand(3,6), h: rand(8,14),
-    vy: rand(0.6,1.4),
+    x: rand(0,W),
+    y: rand(-H*0.5,H),
+    w: rand(3,6),
+    h: rand(8,16),
+    vy: rand(0.7,1.6),
     rot: rand(0,6.28),
-    vr: rand(-0.04,0.04),
+    vr: rand(-0.05,0.05),
     color: colors[(Math.random()*colors.length)|0]
   });
 }
 
-function burst(x,y){
-  for(let i=0;i<30;i++){
-    const a=rand(0,6.28), s=rand(1.2,3.2);
-    bursts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,
-                 color:colors[(Math.random()*colors.length)|0],
-                 size:rand(3,6)});
+function burst(x,y) {
+  for (let i=0;i<26;i++) {
+    const a = rand(0,6.28);
+    const s = rand(1.5,3.5);
+    bursts.push({
+      x, y,
+      vx: Math.cos(a)*s,
+      vy: Math.sin(a)*s,
+      life: 1,
+      size: rand(3,6),
+      color: colors[(Math.random()*colors.length)|0]
+    });
   }
 }
-canvas.onclick = e => burst(e.clientX,e.clientY);
-canvas.ontouchstart = e => {
-  let t=e.touches[0];
-  burst(t.clientX,t.clientY);
-};
 
-function draw(){
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#060b24'); g.addColorStop(1,'#140b33');
-  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+canvas.addEventListener('click', e => {
+  burst(e.clientX, e.clientY);
+});
+canvas.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  burst(t.clientX, t.clientY);
+}, {passive:true});
 
-  confetti.forEach(c=>{
-    c.y+=c.vy; c.rot+=c.vr;
-    if(c.y>H+20){c.y=rand(-H*0.4,-20); c.x=rand(0,W);}
+function draw() {
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#ffeef5');
+  g.addColorStop(1,'#e8f6ff');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  confetti.forEach(c => {
+    c.y += c.vy;
+    c.rot += c.vr;
+    if (c.y > H+20) {
+      c.y = rand(-H*0.4,-20);
+      c.x = rand(0,W);
+    }
     ctx.save();
-    ctx.translate(c.x,c.y); ctx.rotate(c.rot);
-    ctx.fillStyle=c.color; ctx.fillRect(-c.w/2,-c.h/2,c.w,c.h);
+    ctx.translate(c.x,c.y);
+    ctx.rotate(c.rot);
+    ctx.fillStyle = c.color;
+    ctx.fillRect(-c.w/2,-c.h/2,c.w,c.h);
     ctx.restore();
   });
 
-  const t=Date.now()*0.001;
-  balloons.forEach(b=>{
-    b.y+=b.vy; b.x+=Math.sin(t+b.off)*b.sway;
-    if(b.y<-50){ b.y=H+rand(30,120); b.x=rand(0,W); }
+  const t = Date.now()*0.001;
+  balloons.forEach(b => {
+    b.y += b.vy;
+    b.x += Math.sin(t + b.off)*b.sway;
+    if (b.y < -60) {
+      b.y = H + rand(40,140);
+      b.x = rand(-50,W+50);
+    }
     ctx.save();
     ctx.translate(b.x,b.y);
     ctx.beginPath();
-    ctx.ellipse(0,0,b.r*0.75,b.r,0,0,6.28);
-    const gg=ctx.createRadialGradient(-b.r*0.2,-b.r*0.4,b.r*0.1,0,0,b.r);
-    gg.addColorStop(0,'#fff');
-    gg.addColorStop(0.18,b.color);
-    gg.addColorStop(1,'#000');
-    ctx.fillStyle=gg; ctx.fill();
+    ctx.ellipse(0,0,b.r*0.75,b.r,0,0,Math.PI*2);
+    const gg = ctx.createRadialGradient(-b.r*0.25,-b.r*0.45,b.r*0.2,0,0,b.r);
+    gg.addColorStop(0,'#ffffff');
+    gg.addColorStop(0.2,b.color);
+    gg.addColorStop(1,'rgba(0,0,0,0.2)');
+    ctx.fillStyle = gg;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-4,b.r*0.7);
+    ctx.lineTo(4,b.r*0.7);
+    ctx.lineTo(0,b.r*0.95);
+    ctx.closePath();
+    ctx.fillStyle = b.color;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(120,120,120,0.8)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0,b.r*0.95);
+    ctx.bezierCurveTo(3,b.r*1.4,-3,b.r*1.9,2,b.r*2.4);
+    ctx.stroke();
+
     ctx.restore();
   });
 
-  for(let i=bursts.length-1;i>=0;i--){
-    let p=bursts[i];
-    p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life-=0.02;
-    ctx.globalAlpha=p.life;
-    ctx.fillStyle=p.color;
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,6.28); ctx.fill();
-    ctx.globalAlpha=1;
-    if(p.life<=0) bursts.splice(i,1);
+  for (let i=bursts.length-1;i>=0;i--) {
+    const p = bursts[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.life -= 0.03;
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if (p.life <= 0) bursts.splice(i,1);
   }
 
   requestAnimationFrame(draw);
 }
 draw();
 
-/* ---------- 生日快乐背景音乐（Web Audio 合成） ---------- */
+/* ---------- 生日快乐背景音乐（更快、更欢快，尽量自动播放） ---------- */
 
-let audioCtx=null, musicOn=false;
-const btn=document.getElementById("musicBtn");
+let audioCtx = null;
+let musicStarted = false;
+const bpm = 140;  // 比之前更快
 
 const melody = [
-  [262,0.5], [262,0.5], [294,1], [262,1], [349,1], [330,2],
-  [262,0.5], [262,0.5], [294,1], [262,1], [392,1], [349,2],
-  [262,0.5], [262,0.5], [523,1], [440,1], [349,1], [330,1], [294,1],
-  [466,0.5], [466,0.5], [440,1], [349,1], [392,1], [349,2]
+  [262,1], [262,1], [294,2], [262,2], [349,2], [330,4],
+  [262,1], [262,1], [294,2], [262,2], [392,2], [349,4],
+  [262,1], [262,1], [523,2], [440,2], [349,2], [330,2], [294,3],
+  [466,1], [466,1], [440,2], [349,2], [392,2], [349,4]
 ];
 
-async function playMelody(){
-  if(!audioCtx) return;
-  let t=audioCtx.currentTime;
-  melody.forEach(([freq,len])=>{
-    const osc=audioCtx.createOscillator();
-    const gain=audioCtx.createGain();
-    osc.frequency.value=freq;
-    osc.type="triangle";
-    gain.gain.setValueAtTime(0.4,t);
-    gain.gain.exponentialRampToValueAtTime(0.001,t+len);
+let totalBeats = melody.reduce((sum, m) => sum + m[1], 0);
+
+function playMelody() {
+  if (!audioCtx) return;
+  let t = audioCtx.currentTime;
+  const beatDur = 60 / bpm;
+
+  melody.forEach(([freq, beats]) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+
+    const dur = beats * beatDur;
+    gain.gain.setValueAtTime(0.5, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.9);
+
     osc.connect(gain).connect(audioCtx.destination);
     osc.start(t);
-    osc.stop(t+len);
-    t+=len*1.05;
+    osc.stop(t + dur);
+
+    t += dur;
   });
 }
 
-btn.onclick = async ()=>{
-  if(!audioCtx){
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
+async function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+
+  audioCtx = new AC();
+  try {
     await audioCtx.resume();
-  }
+  } catch(e) {}
 
-  musicOn = !musicOn;
-  btn.textContent = musicOn ? "🔊 Música ON" : "🔇 Música OFF";
-  btn.classList.toggle("on", musicOn);
+  playMelody();
+  const loopMs = totalBeats * (60 / bpm) * 1000 + 500;
+  setInterval(() => {
+    if (audioCtx && audioCtx.state === "running") {
+      playMelody();
+    }
+  }, loopMs);
+}
 
-  if(musicOn){
-    playMelody();
-  }
-};
+// 尝试自动播放；有的浏览器会拦截，那我们在首次点击/触摸时再启动一次
+window.addEventListener('load', () => {
+  startMusic();
+});
+window.addEventListener('click', () => startMusic(), { once: true });
+window.addEventListener('touchstart', () => startMusic(), { once: true });
 </script>
 
 </body>
