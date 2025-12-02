@@ -11,8 +11,13 @@
       height: 100%;
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #ffeef5, #e8f6ff);
+      background: #000000; /* 初始黑幕 */
       color: #222222;
+    }
+
+    /* 彩色背景真正是在 canvas 里画，body 只管黑 or 非黑 */
+    body.started {
+      background: linear-gradient(135deg, #ffeef5, #e8f6ff);
     }
 
     canvas {
@@ -21,6 +26,11 @@
       display: block;
       z-index: 0;
       pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease-out;
+    }
+    body.started canvas {
+      opacity: 1;
     }
 
     .center-card {
@@ -31,6 +41,15 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(15px) scale(0.96);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    body.started .center-card {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
     }
 
     .card {
@@ -42,12 +61,6 @@
       text-align: center;
       max-width: 520px;
       width: 100%;
-      animation: popIn 0.7s ease-out;
-    }
-
-    @keyframes popIn {
-      from { transform: translateY(20px) scale(0.95); opacity: 0; }
-      to   { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     .title {
@@ -146,6 +159,60 @@
       box-shadow: 0 9px 22px rgba(37, 211, 102, 0.55);
     }
 
+    .music-hint {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #aa5500;
+    }
+
+    /* 全屏黑幕 + 点击我按钮 */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      color: #ffffff;
+      text-align: center;
+      transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+    }
+    .overlay.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .overlay-title {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .start-btn {
+      padding: 14px 32px;
+      border-radius: 999px;
+      border: 2px solid #ffffff;
+      background: transparent;
+      color: #ffffff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      text-align: center;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .start-sub {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+      70%  { transform: scale(1.08); box-shadow: 0 0 0 16px rgba(255,255,255,0); }
+      100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+
     @media (max-width: 480px) {
       .card {
         padding: 20px 16px 16px;
@@ -162,13 +229,24 @@
       .info, .names, .pill {
         font-size: 1.0rem;
       }
-      .small {
+      .small, .music-hint, .overlay-title, .start-sub {
         font-size: 0.9rem;
+      }
+      .start-btn {
+        font-size: 1.15rem;
+        padding: 12px 26px;
       }
     }
   </style>
 </head>
 <body>
+
+<!-- 黑幕 + 点击按钮 -->
+<div class="overlay" id="startOverlay">
+  <div class="overlay-title">🎂 Lista la invitación, tocá para entrar</div>
+  <button class="start-btn" id="startBtn">点击我 · Tocá acá</button>
+  <div class="start-sub">Se va a abrir la tarjeta con música de cumpleaños.</div>
+</div>
 
 <canvas id="bg"></canvas>
 
@@ -207,6 +285,10 @@
     <div class="small">
       Si llueve, la fiesta se hace igual en la quinta.<br>
       Avisá si el/la chico/a tiene alguna alergia alimentaria.
+    </div>
+
+    <div class="music-hint" id="musicHint">
+      🎵 La canción de cumpleaños empieza sola después de tocar el botón.
     </div>
   </div>
 </div>
@@ -273,9 +355,11 @@ function burst(x,y) {
 }
 
 canvas.addEventListener('click', e => {
+  if (!document.body.classList.contains('started')) return;
   burst(e.clientX, e.clientY);
 });
 canvas.addEventListener('touchstart', e => {
+  if (!document.body.classList.contains('started')) return;
   const t = e.touches[0];
   burst(t.clientX, t.clientY);
 }, {passive:true});
@@ -358,13 +442,12 @@ function draw() {
 }
 draw();
 
-/* ---------- 生日快乐背景音乐：加强版自动播放 ---------- */
+/* ---------- 生日快乐音乐：点击按钮后开始循环 ---------- */
 
 let audioCtx = null;
-let musicStarted = false;
+let musicLooping = false;
 
-// Happy Birthday 简单旋律（相对简化版）
-const bpm = 150; // 更快一点
+const bpm = 150;
 const melody = [
   [262,1], [262,1], [294,2], [262,2], [349,2], [330,4],
   [262,1], [262,1], [294,2], [262,2], [392,2], [349,4],
@@ -373,24 +456,22 @@ const melody = [
 ];
 
 const totalBeats = melody.reduce((s,m)=>s+m[1],0);
+const beatDur = 60 / bpm;
 
-function playMelody() {
+function scheduleMelodyOnce() {
   if (!audioCtx) return;
-  const beatDur = 60 / bpm;
   let t = audioCtx.currentTime + 0.05;
 
-  melody.forEach(function(note) {
-    const freq = note[0];
-    const beats = note[1];
+  melody.forEach(([freq, beats]) => {
     const dur = beats * beatDur;
-
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+
     osc.type = "triangle";
     osc.frequency.value = freq;
 
     gain.gain.setValueAtTime(0.0, t);
-    gain.gain.linearRampToValueAtTime(0.4, t + 0.02);
+    gain.gain.linearRampToValueAtTime(0.45, t + 0.03);
     gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.9);
 
     osc.connect(gain).connect(audioCtx.destination);
@@ -401,9 +482,8 @@ function playMelody() {
   });
 }
 
-async function startMusic(force) {
-  if (musicStarted && !force) return;
-  musicStarted = true;
+function startMusicLoop() {
+  if (musicLooping) return;
 
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
@@ -412,43 +492,45 @@ async function startMusic(force) {
     audioCtx = new AC();
   }
 
-  try {
-    await audioCtx.resume();
-  } catch(e) {
-    // ignore
-  }
+  audioCtx.resume().then(() => {
+    musicLooping = true;
 
-  // 先放一个几乎静音的“预热音”，一些浏览器会因此放开自动播放限制
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.frequency.value = 440;
-  gain.gain.value = 0.0001;
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.05);
-
-  // 播放旋律并循环
-  playMelody();
-  const loopMs = totalBeats * (60 / bpm) * 1000 + 800;
-  setInterval(function() {
-    if (audioCtx && audioCtx.state === "running") {
-      playMelody();
+    const hint = document.getElementById('musicHint');
+    if (hint) {
+      hint.textContent = '🎶 Canción de cumpleaños sonando en bucle.';
     }
-  }, loopMs);
+
+    function loop() {
+      if (!musicLooping || !audioCtx || audioCtx.state !== 'running') return;
+      scheduleMelodyOnce();
+      const totalMs = totalBeats * beatDur * 1000 + 600;
+      setTimeout(loop, totalMs);
+    }
+
+    scheduleMelodyOnce();
+    const totalMs = totalBeats * beatDur * 1000 + 600;
+    setTimeout(loop, totalMs);
+  }).catch(() => {
+    // 如果失败，就等下次点按钮再试
+    musicLooping = false;
+  });
 }
 
-// 页面加载后先尝试自动播放
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    startMusic(false);
-  }, 300);
-});
+/* ---------- 点击「点击我 / Tocá acá」按钮：黑幕消失 + 页面展开 + 音乐启动 ---------- */
 
-// 如果浏览器特别严格，第一次点击 / 触摸时再强制启动一次
-['pointerdown','touchstart','click'].forEach(function(ev){
-  window.addEventListener(ev, function(){
-    startMusic(true);
-  }, { once: true, passive: true });
+const startBtn = document.getElementById('startBtn');
+const startOverlay = document.getElementById('startOverlay');
+
+startBtn.addEventListener('click', () => {
+  // 展开页面
+  document.body.classList.add('started');
+  startOverlay.classList.add('hide');
+  setTimeout(() => {
+    startOverlay.style.display = 'none';
+  }, 700);
+
+  // 启动音乐循环
+  startMusicLoop();
 });
 </script>
 
