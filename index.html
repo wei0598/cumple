@@ -51,7 +51,7 @@
     }
 
     .title {
-      font-size: 2.4rem;     /* 大一点 */
+      font-size: 2.4rem;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -62,7 +62,7 @@
     }
 
     .subtitle {
-      font-size: 1.4rem;     /* 大一点 */
+      font-size: 1.4rem;
       margin-bottom: 16px;
       color: #444444;
     }
@@ -77,7 +77,7 @@
 
     .logo-row img {
       display: block;
-      max-height: 90px;      /* LOGO 更大 */
+      max-height: 90px;
       border-radius: 14px;
       background: #000;
       object-fit: contain;
@@ -212,7 +212,7 @@
 </div>
 
 <script>
-/* ---------- 彩色背景动画（亮色版） ---------- */
+/* ---------- 明亮气球 + 彩纸背景动画 ---------- */
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
 let W, H;
@@ -358,12 +358,13 @@ function draw() {
 }
 draw();
 
-/* ---------- 生日快乐背景音乐（更快、更欢快，尽量自动播放） ---------- */
+/* ---------- 生日快乐背景音乐：加强版自动播放 ---------- */
 
 let audioCtx = null;
 let musicStarted = false;
-const bpm = 140;  // 比之前更快
 
+// Happy Birthday 简单旋律（相对简化版）
+const bpm = 150; // 更快一点
 const melody = [
   [262,1], [262,1], [294,2], [262,2], [349,2], [330,4],
   [262,1], [262,1], [294,2], [262,2], [392,2], [349,4],
@@ -371,21 +372,25 @@ const melody = [
   [466,1], [466,1], [440,2], [349,2], [392,2], [349,4]
 ];
 
-let totalBeats = melody.reduce((sum, m) => sum + m[1], 0);
+const totalBeats = melody.reduce((s,m)=>s+m[1],0);
 
 function playMelody() {
   if (!audioCtx) return;
-  let t = audioCtx.currentTime;
   const beatDur = 60 / bpm;
+  let t = audioCtx.currentTime + 0.05;
 
-  melody.forEach(([freq, beats]) => {
+  melody.forEach(function(note) {
+    const freq = note[0];
+    const beats = note[1];
+    const dur = beats * beatDur;
+
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = "triangle";
     osc.frequency.value = freq;
 
-    const dur = beats * beatDur;
-    gain.gain.setValueAtTime(0.5, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.4, t + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.9);
 
     osc.connect(gain).connect(audioCtx.destination);
@@ -396,33 +401,55 @@ function playMelody() {
   });
 }
 
-async function startMusic() {
-  if (musicStarted) return;
+async function startMusic(force) {
+  if (musicStarted && !force) return;
   musicStarted = true;
 
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
 
-  audioCtx = new AC();
+  if (!audioCtx) {
+    audioCtx = new AC();
+  }
+
   try {
     await audioCtx.resume();
-  } catch(e) {}
+  } catch(e) {
+    // ignore
+  }
 
+  // 先放一个几乎静音的“预热音”，一些浏览器会因此放开自动播放限制
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.frequency.value = 440;
+  gain.gain.value = 0.0001;
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.05);
+
+  // 播放旋律并循环
   playMelody();
-  const loopMs = totalBeats * (60 / bpm) * 1000 + 500;
-  setInterval(() => {
+  const loopMs = totalBeats * (60 / bpm) * 1000 + 800;
+  setInterval(function() {
     if (audioCtx && audioCtx.state === "running") {
       playMelody();
     }
   }, loopMs);
 }
 
-// 尝试自动播放；有的浏览器会拦截，那我们在首次点击/触摸时再启动一次
-window.addEventListener('load', () => {
-  startMusic();
+// 页面加载后先尝试自动播放
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    startMusic(false);
+  }, 300);
 });
-window.addEventListener('click', () => startMusic(), { once: true });
-window.addEventListener('touchstart', () => startMusic(), { once: true });
+
+// 如果浏览器特别严格，第一次点击 / 触摸时再强制启动一次
+['pointerdown','touchstart','click'].forEach(function(ev){
+  window.addEventListener(ev, function(){
+    startMusic(true);
+  }, { once: true, passive: true });
+});
 </script>
 
 </body>
