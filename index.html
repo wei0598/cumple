@@ -433,4 +433,145 @@ function draw() {
     ctx.globalAlpha = 1;
 
     return p.life > 0;
-  }
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* 全页面点击时烟花爆炸（只有在 started 之后） */
+function handleFireworksClick(e) {
+  if (!document.body.classList.contains('started')) return;
+  const x = e.clientX;
+  const y = e.clientY;
+  burst(x, y);
+}
+function handleFireworksTouch(e) {
+  if (!document.body.classList.contains('started')) return;
+  const t = e.touches[0];
+  burst(t.clientX, t.clientY);
+}
+document.addEventListener('click', handleFireworksClick);
+document.addEventListener('touchstart', handleFireworksTouch, {passive:true});
+
+/* ---------- 🎹 钢琴风格生日歌 ---------- */
+
+let audioCtx = null;
+let musicLooping = false;
+
+const melody = [
+  [262,1], [262,1], [294,2], [262,2], [349,2], [330,4],
+  [262,1], [262,1], [294,2], [262,2], [392,2], [349,4],
+  [262,1], [262,1], [523,2], [440,2], [349,2], [330,2], [294,3],
+  [466,1], [466,1], [440,2], [349,2], [392,2], [349,4]
+];
+
+const bpm = 150;
+const beatDur = 60 / bpm;
+const totalBeats = melody.reduce((s,m)=>s+m[1],0);
+
+function createPianoVoice(freq, startTime, duration, gainScale = 1.0) {
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const osc3 = audioCtx.createOscillator();
+
+  osc1.type = "sine";
+  osc2.type = "triangle";
+  osc3.type = "square";
+
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq * 2.01;
+  osc3.frequency.value = freq * 4;
+
+  const gain = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+
+  filter.type = "lowpass";
+  filter.frequency.value = 6000;
+
+  const attack = 0.01;
+  const decay = duration * 0.3;
+  const sustain = 0.3 * gainScale;
+  const release = duration * 0.4;
+
+  const t0 = startTime;
+
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(0.9 * gainScale, t0 + attack);
+  gain.gain.linearRampToValueAtTime(sustain, t0 + attack + decay);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration + release);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  osc3.connect(gain);
+  gain.connect(filter).connect(audioCtx.destination);
+
+  osc1.start(t0);
+  osc2.start(t0);
+  osc3.start(t0);
+
+  const stopTime = t0 + duration + release;
+  osc1.stop(stopTime);
+  osc2.stop(stopTime);
+  osc3.stop(stopTime);
+}
+
+function scheduleHappyBirthday() {
+  let t = audioCtx.currentTime + 0.05;
+
+  melody.forEach(([freq, beats], i) => {
+    const dur = beats * beatDur;
+
+    // 右手旋律
+    createPianoVoice(freq, t, dur, 1.0);
+
+    // 简单左手：每 4 个音左右加一点低八度
+    if (i % 4 === 0) {
+      createPianoVoice(freq/2, t, dur*1.2, 0.7);
+    }
+
+    t += dur;
+  });
+}
+
+function startMusicLoop() {
+  if (musicLooping) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+
+  audioCtx = new AC();
+  audioCtx.resume().then(() => {
+    musicLooping = true;
+
+    scheduleHappyBirthday();
+    const totalMs = totalBeats * beatDur * 1000 + 800;
+
+    function loop() {
+      if (!audioCtx || audioCtx.state !== "running") return;
+      scheduleHappyBirthday();
+      setTimeout(loop, totalMs);
+    }
+    setTimeout(loop, totalMs);
+  }).catch(() => {
+    musicLooping = false;
+  });
+}
+
+/* ---------- 点击按钮触发：黑幕消失 + 音乐启动 ---------- */
+
+const startBtn = document.getElementById('startBtn');
+const startOverlay = document.getElementById('startOverlay');
+
+startBtn.addEventListener('click', () => {
+  document.body.classList.add('started');
+  startOverlay.classList.add('hide');
+  setTimeout(() => {
+    startOverlay.style.display = 'none';
+  }, 700);
+
+  startMusicLoop();
+});
+</script>
+
+</body>
+</html>
